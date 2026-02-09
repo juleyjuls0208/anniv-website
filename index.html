@@ -1887,15 +1887,12 @@
                         onLeaveBack: () => {
                             stopBurnAnimation();
                             burnParams.fireTime = 0.35;
-                        },
-                        onLeave: () => {
-                            stopBurnAnimation();
                         }
                     });
 
                     // Animate burn progress based on scroll
                     gsap.to(burnParams, {
-                        fireTime: 0.75,
+                        fireTime: 0.9, // Increased from 0.75 to ensure letter is fully revealed
                         ease: 'none',
                         scrollTrigger: {
                             trigger: '.letter-first-view',
