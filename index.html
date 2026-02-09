@@ -1,0 +1,2055 @@
+<!DOCTYPE html>
+<html lang="en" data-rounded-scroll>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>For You</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Dancing+Script:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <style>
+        /* ======================================
+       RESET & BASE
+    ====================================== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-dark: #1a0a0a;
+            --bg-warm: #2a1215;
+            --rose: #e8a0a0;
+            --rose-light: #f5c6c6;
+            --rose-dark: #c27070;
+            --gold: #d4a574;
+            --gold-light: #e8c9a0;
+            --cream: #fdf6f0;
+            --cream-dark: #f0e0d0;
+            --text-light: #fdf6f0;
+            --text-muted: rgba(253, 246, 240, 0.6);
+            --pink-glow: rgba(232, 160, 160, 0.15);
+            --font-serif: 'Cormorant Garamond', Georgia, serif;
+            --font-body: 'Lora', Georgia, serif;
+            --font-script: 'Dancing Script', cursive;
+            /* Scrollbar vars */
+            --sb-radius: 24;
+            --sb-stroke: 6;
+            --sb-inset: 6;
+            --sb-thumb: 80;
+            --sb-finish: 5;
+            --sb-trail: 0;
+            --sb-scroll-padding: 80;
+        }
+
+        html {
+            overflow: hidden;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-dark);
+            color: var(--text-light);
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Hide default scrollbar globally */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        /* ======================================
+       LOCK SCREEN
+    ====================================== */
+        #lock-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-dark);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        #lock-screen.unlocked {
+            opacity: 0;
+            transform: scale(1.1);
+            pointer-events: none;
+        }
+
+        .lock-hearts {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .lock-heart {
+            position: absolute;
+            font-size: 1.5rem;
+            opacity: 0;
+            animation: floatHeart 6s infinite ease-in-out;
+            color: var(--rose);
+        }
+
+        @keyframes floatHeart {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.3;
+            }
+
+            90% {
+                opacity: 0.1;
+            }
+
+            100% {
+                transform: translateY(-10vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .lock-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .lock-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: none;
+            stroke: var(--rose);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .lock-title {
+            font-family: var(--font-script);
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            color: var(--rose-light);
+            margin-bottom: 0.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .lock-subtitle {
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            letter-spacing: 0.1em;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .lock-input-wrap {
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .lock-input {
+            width: 240px;
+            padding: 14px 20px;
+            font-family: var(--font-body);
+            font-size: 1.2rem;
+            letter-spacing: 0.5em;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(232, 160, 160, 0.3);
+            border-radius: 50px;
+            color: var(--text-light);
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .lock-input:focus {
+            border-color: var(--rose);
+            box-shadow: 0 0 20px rgba(232, 160, 160, 0.2);
+        }
+
+        .lock-input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.3em;
+            font-size: 0.9rem;
+        }
+
+        .lock-error {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: var(--rose-dark);
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+        }
+
+        .lock-error.show {
+            opacity: 1;
+        }
+
+        .lock-input.shake {
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20% {
+                transform: translateX(-10px);
+            }
+
+            40% {
+                transform: translateX(10px);
+            }
+
+            60% {
+                transform: translateX(-10px);
+            }
+
+            80% {
+                transform: translateX(10px);
+            }
+        }
+
+        .lock-pulse {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(232, 160, 160, 0.08) 0%, transparent 70%);
+            animation: lockPulse 4s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes lockPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: scale(1.3);
+                opacity: 1;
+            }
+        }
+
+        /* ======================================
+       MAIN CONTENT WRAPPER
+    ====================================== */
+        #main-content {
+            display: none;
+            opacity: 0;
+        }
+
+        #main-content.visible {
+            display: block;
+        }
+
+        /* ======================================
+       CUSTOM ROUNDED SCROLLBAR (SVG)
+    ====================================== */
+        .scroller {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 100vh;
+            z-index: 100;
+            pointer-events: none;
+            padding: 0;
+        }
+
+        .scroller>svg {
+            position: absolute;
+            top: 0;
+            right: 8px;
+            height: 100%;
+            width: calc(var(--sb-radius) * 2px);
+            overflow: visible !important;
+            pointer-events: none;
+        }
+
+        .bar__thumb,
+        .bar__track {
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        [data-rounded-scroll] .scroller .bar__thumb.visible,
+        [data-rounded-scroll] .scroller .bar__track.visible {
+            opacity: 1;
+        }
+
+        .scroller path {
+            stroke-width: calc(var(--sb-stroke) * 1px);
+        }
+
+        .bar__thumb {
+            stroke: rgba(232, 160, 160, 0.6);
+            stroke-dasharray: var(--thumb-size, 80) var(--track-length, 1000);
+        }
+
+        .bar__track {
+            stroke: rgba(255, 255, 255, 0.06);
+        }
+
+        /* ======================================
+       SCROLL CONTAINER
+    ====================================== */
+        #scroll-container {
+            width: 100vw;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* ======================================
+       NAVIGATION
+    ====================================== */
+        .nav-dots {
+            position: fixed;
+            left: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--rose);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .nav-dot::after {
+            content: attr(data-label);
+            position: absolute;
+            left: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: var(--font-body);
+            font-size: 0.7rem;
+            color: var(--rose-light);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            letter-spacing: 0.1em;
+        }
+
+        .nav-dot:hover::after {
+            opacity: 1;
+        }
+
+        .nav-dot.active {
+            background: var(--rose);
+            box-shadow: 0 0 12px rgba(232, 160, 160, 0.4);
+            transform: scale(1.2);
+        }
+
+        /* ======================================
+       SECTION BASE
+    ====================================== */
+        .section {
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section__content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 100px 40px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ======================================
+       HERO / INTRO SECTION
+    ====================================== */
+        .section--hero {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-dark);
+            position: relative;
+        }
+
+        .hero-bg-particles {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .hero-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--rose);
+            opacity: 0;
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 2;
+            position: relative;
+        }
+
+        .hero-date {
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+        }
+
+        .hero-title {
+            font-family: var(--font-script);
+            font-size: clamp(3rem, 10vw, 7rem);
+            color: var(--rose-light);
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            opacity: 0;
+        }
+
+        .hero-subtitle {
+            font-family: var(--font-serif);
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            color: var(--text-muted);
+            font-weight: 300;
+            font-style: italic;
+            max-width: 500px;
+            margin: 0 auto 2rem;
+            opacity: 0;
+        }
+
+        .hero-scroll-hint {
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .hero-scroll-hint:hover {
+            color: var(--rose-light);
+        }
+
+        .hero-scroll-hint:hover .arrow-down svg {
+            stroke: var(--rose-light);
+        }
+
+        .hero-scroll-hint .arrow-down {
+            width: 20px;
+            height: 20px;
+            animation: bounceDown 2s infinite ease-in-out;
+        }
+
+        .hero-scroll-hint .arrow-down svg {
+            stroke: var(--rose);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            transition: stroke 0.3s;
+        }
+
+        @keyframes bounceDown {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(8px);
+            }
+        }
+
+        .hero-divider {
+            width: 1px;
+            height: 60px;
+            background: linear-gradient(to bottom, var(--rose), transparent);
+            margin: 0 auto 2rem;
+            opacity: 0;
+        }
+
+        /* ======================================
+       SECTION 1: THANK YOU
+    ====================================== */
+        .section--thankyou {
+            background: linear-gradient(135deg, var(--bg-warm) 0%, var(--bg-dark) 100%);
+            position: relative;
+        }
+
+        .section--thankyou::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 50%, rgba(232, 160, 160, 0.06) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .thankyou-heading {
+            font-family: var(--font-script);
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            color: var(--rose-light);
+            margin-bottom: 2rem;
+            line-height: 1.2;
+            opacity: 0;
+        }
+
+        .thankyou-text {
+            font-family: var(--font-serif);
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.9;
+            color: var(--cream-dark);
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+            opacity: 0;
+        }
+
+        .thankyou-highlight {
+            display: inline;
+            background: linear-gradient(120deg, rgba(232, 160, 160, 0.15) 0%, rgba(232, 160, 160, 0.05) 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--rose-light);
+        }
+
+        .thankyou-list {
+            list-style: none;
+            margin: 2rem 0;
+            padding: 0;
+        }
+
+        .thankyou-list li {
+            font-family: var(--font-serif);
+            font-size: 1.05rem;
+            color: var(--cream-dark);
+            padding: 12px 0 12px 24px;
+            position: relative;
+            border-left: 1px solid rgba(232, 160, 160, 0.2);
+            margin-left: 8px;
+            opacity: 0;
+            font-weight: 300;
+        }
+
+        .thankyou-list li::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 18px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--rose);
+            box-shadow: 0 0 10px rgba(232, 160, 160, 0.4);
+        }
+
+        /* ======================================
+       SECTION 2: MEMORIES (3D Carousel)
+    ====================================== */
+        .section--memories {
+            background: var(--bg-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section--memories::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 70% 30%, rgba(212, 165, 116, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .memories-heading {
+            font-family: var(--font-script);
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            color: var(--rose-light);
+            text-align: center;
+            margin-bottom: 2rem;
+            opacity: 0;
+            position: relative;
+            z-index: 5;
+        }
+
+        .memories-subtext {
+            font-family: var(--font-serif);
+            font-size: 1rem;
+            color: var(--text-muted);
+            text-align: center;
+            font-style: italic;
+            margin-bottom: 1rem;
+            opacity: 0;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* 3 Memory Cards Grid */
+        .memory-cards {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            z-index: 5;
+        }
+
+        .memory-card {
+            width: clamp(200px, 25vw, 320px);
+            height: clamp(280px, 35vw, 420px);
+            position: relative;
+            cursor: pointer;
+            border-radius: 16px;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(232, 160, 160, 0.1), rgba(212, 165, 116, 0.1));
+            border: 1px solid rgba(232, 160, 160, 0.15);
+            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.5s ease;
+        }
+
+        .memory-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                0 0 40px rgba(232, 160, 160, 0.15);
+        }
+
+        .memory-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 40%, rgba(18, 8, 8, 0.9) 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .memory-card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .memory-card:hover .memory-card-image {
+            transform: scale(1.08);
+        }
+
+        .memory-card-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(60, 20, 25, 0.8) 0%, rgba(42, 18, 21, 0.9) 100%);
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 0;
+            /* Removed padding to let image fill */
+            overflow: hidden;
+            /* Ensure image stays within bounds */
+        }
+
+        .memory-card-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.6s ease;
+        }
+
+        .memory-card:hover .memory-card-placeholder img {
+            transform: scale(1.08);
+        }
+
+        .memory-card-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            z-index: 3;
+            transform: translateY(10px);
+            opacity: 0.9;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+
+        .memory-card:hover .memory-card-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .memory-card-number {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--rose-light);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .memory-card-title {
+            font-family: var(--font-script);
+            font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+            color: var(--cream);
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .memory-card-hint {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            font-style: italic;
+            opacity: 0;
+            transform: translateY(5px);
+            transition: opacity 0.3s ease 0.1s, transform 0.3s ease 0.1s;
+        }
+
+        .memory-card:hover .memory-card-hint {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Page Transition Overlay */
+        .page-transition {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-dark);
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease;
+        }
+
+        .page-transition.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        @media (max-width: 768px) {
+            .memory-cards {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .memory-card {
+                width: 80vw;
+                max-width: 300px;
+                height: 200px;
+            }
+        }
+
+        /* ======================================
+       SECTION 3: LETTER (Burn Transition)
+    ====================================== */
+        .section--letter {
+            background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-warm) 100%);
+            position: relative;
+            min-height: 250vh;
+        }
+
+        /* Burn Transition Canvas */
+        canvas#fire-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: block;
+            width: 100%;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        canvas#fire-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .letter-arrow {
+            position: fixed;
+            top: 72vh;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 55;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .letter-arrow svg {
+            width: 2rem;
+            height: auto;
+            stroke: var(--rose);
+            fill: none;
+            stroke-width: 3;
+            stroke-linecap: round;
+            animation: floatArrow 1s ease-in-out infinite alternate both;
+        }
+
+        @keyframes floatArrow {
+            from {
+                transform: translateY(-50%) rotate(90deg);
+            }
+
+            to {
+                transform: translateY(50%) rotate(90deg);
+            }
+        }
+
+        .letter-first-view {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .letter-first-view figure {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .letter-first-view figure img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+        }
+
+        .letter-first-view .letter-overlay-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .letter-first-view .letter-overlay-text h2 {
+            font-family: var(--font-script);
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            color: var(--cream);
+            text-shadow:
+                0 2px 10px rgba(0, 0, 0, 0.8),
+                0 4px 30px rgba(0, 0, 0, 0.6),
+                0 0 60px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            background: radial-gradient(ellipse at center, rgba(18, 8, 8, 0.6) 0%, transparent 70%);
+            padding: 30px 60px;
+            border-radius: 10px;
+        }
+
+        .letter-body {
+            position: relative;
+            z-index: 2;
+        }
+
+        .letter-body .section__content {
+            padding-top: 60px;
+        }
+
+        .letter-heading {
+            font-family: var(--font-script);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            color: var(--rose-light);
+            text-align: center;
+            margin-bottom: 3rem;
+            opacity: 0;
+        }
+
+        .letter-paper {
+            background: rgba(253, 246, 240, 0.03);
+            border: 1px solid rgba(232, 160, 160, 0.12);
+            border-radius: 16px;
+            padding: clamp(30px, 5vw, 60px);
+            position: relative;
+            opacity: 0;
+        }
+
+        .letter-paper::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 4rem;
+            color: rgba(232, 160, 160, 0.1);
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+
+        .letter-greeting {
+            font-family: var(--font-script);
+            font-size: 1.8rem;
+            color: var(--rose);
+            margin-bottom: 1.5rem;
+        }
+
+        .letter-paragraph {
+            font-family: var(--font-serif);
+            font-size: clamp(1rem, 2vw, 1.15rem);
+            line-height: 2;
+            color: var(--cream-dark);
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+        }
+
+        .letter-closing {
+            margin-top: 2.5rem;
+            text-align: right;
+        }
+
+        .letter-closing .closing-text {
+            font-family: var(--font-serif);
+            font-size: 1rem;
+            color: var(--cream-dark);
+            font-style: italic;
+        }
+
+        .letter-closing .closing-name {
+            font-family: var(--font-script);
+            font-size: 2rem;
+            color: var(--rose);
+            margin-top: 0.5rem;
+        }
+
+        /* ======================================
+       FOOTER
+    ====================================== */
+        .footer {
+            background: var(--bg-dark);
+            text-align: center;
+            padding: 60px 40px;
+            position: relative;
+        }
+
+        .footer-heart {
+            font-size: 2rem;
+            color: var(--rose);
+            margin-bottom: 1rem;
+            display: inline-block;
+            animation: heartbeat 1.5s infinite ease-in-out;
+        }
+
+        @keyframes heartbeat {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            14% {
+                transform: scale(1.15);
+            }
+
+            28% {
+                transform: scale(1);
+            }
+
+            42% {
+                transform: scale(1.15);
+            }
+
+            56% {
+                transform: scale(1);
+            }
+        }
+
+        .footer-text {
+            font-family: var(--font-serif);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* ======================================
+       RESPONSIVE
+    ====================================== */
+        @media (max-width: 768px) {
+            .nav-dots {
+                left: 12px;
+                gap: 12px;
+            }
+
+            .nav-dot {
+                width: 8px;
+                height: 8px;
+            }
+
+            .section__content {
+                padding: 80px 24px;
+            }
+
+            .scroller {
+                display: none;
+            }
+
+            .carousel-container {
+                --item-width: clamp(80px, 22vmin, 140px);
+            }
+        }
+
+        /* ======================================
+       SELECTION COLORS
+    ====================================== */
+        ::selection {
+            background: rgba(232, 160, 160, 0.3);
+            color: var(--cream);
+        }
+
+        /* ======================================
+       LOADING TRANSITION
+    ====================================== */
+        .page-enter {
+            animation: pageEnter 1.2s ease forwards;
+        }
+
+        @keyframes pageEnter {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ============ LOCK SCREEN ============ -->
+    <div id="lock-screen">
+        <div class="lock-pulse"></div>
+        <div class="lock-hearts" id="lock-hearts"></div>
+        <div class="lock-icon">
+            <svg viewBox="0 0 24 24">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                <circle cx="12" cy="16" r="1" fill="currentColor" />
+            </svg>
+        </div>
+        <div class="lock-title">This is for you</div>
+        <div class="lock-subtitle">Enter our special code</div>
+        <div class="lock-input-wrap">
+            <input type="password" class="lock-input" id="lock-input" placeholder="------" maxlength="6"
+                autocomplete="off" inputmode="numeric" />
+            <div class="lock-error" id="lock-error">That's not it, try again...</div>
+        </div>
+    </div>
+    <!-- ============ MAIN SITE ============ -->
+    <div id="main-content">
+        <!-- Custom Rounded Scrollbar -->
+        <div class="scroller" id="custom-scrollbar">
+            <svg class="scroller__bar bar" viewBox="0 0 48 100" xmlns="http://www.w3.org/2000/svg">
+                <path class="bar__track" fill="none" stroke-linecap="round" />
+                <path class="bar__thumb" fill="none" stroke-linecap="round" />
+            </svg>
+            <style id="scroller-frames"></style>
+        </div>
+        <!-- Navigation Dots -->
+        <nav class="nav-dots" id="nav-dots">
+            <div class="nav-dot active" data-section="0" data-label="Home"></div>
+            <div class="nav-dot" data-section="1" data-label="Thank You"></div>
+            <div class="nav-dot" data-section="2" data-label="Memories"></div>
+            <div class="nav-dot" data-section="3" data-label="My Letter"></div>
+        </nav>
+        <!-- Page Transition Overlay -->
+        <div class="page-transition" id="page-transition"></div>
+        <!-- Burn Transition Fire Overlay -->
+        <canvas id="fire-overlay"></canvas>
+        <span class="letter-arrow" id="letter-arrow" aria-hidden="true">
+            <svg width="20" height="20" viewBox="-5 -5 30 30">
+                <path d="M 0 10 H 20 L 10 0 M 20 10 L 10 20" stroke-width="3" stroke-linecap="round"
+                    stroke-linejoin="round"></path>
+            </svg>
+        </span>
+
+        <!-- WebGL Shaders for Burn Transition -->
+        <script type="x-shader/x-fragment" id="vertShader">
+            precision mediump float;
+            varying vec2 vUv;
+            attribute vec2 a_position;
+            void main() {
+                vUv = a_position;
+                gl_Position = vec4(a_position, 0.0, 1.0);
+            }
+        </script>
+
+        <script type="x-shader/x-fragment" id="fragShader">
+            precision mediump float;
+            varying vec2 vUv;
+            uniform vec2 u_resolution;
+            uniform float u_progress;
+            uniform float u_time;
+
+            float rand(vec2 n) {
+                return fract(cos(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
+            }
+            float noise(vec2 n) {
+                const vec2 d = vec2(0., 1.);
+                vec2 b = floor(n), f = smoothstep(vec2(0.0), vec2(1.0), fract(n));
+                return mix(mix(rand(b), rand(b + d.yx), f.x), mix(rand(b + d.xy), rand(b + d.yy), f.x), f.y);
+            }
+            float fbm(vec2 n) {
+                float total = 0.0, amplitude = .4;
+                for (int i = 0; i < 4; i++) {
+                    total += noise(n) * amplitude;
+                    n += n;
+                    amplitude *= 0.6;
+                }
+                return total;
+            }
+
+            void main() {
+                vec2 uv = vUv;
+                uv.x *= min(1., u_resolution.x / u_resolution.y);
+                uv.y *= min(1., u_resolution.y / u_resolution.x);
+
+                float t = u_progress;
+                
+                // Dark overlay color
+                vec3 darkColor = vec3(0.05, 0.02, 0.02);
+                
+                // Noise pattern for burn edge
+                float main_noise = 1.0 - fbm(0.75 * uv + 10.0 - vec2(0.3, 0.9 * t));
+                
+                // Fire/ember animation
+                vec3 fire_color = fbm(6.0 * uv - vec2(0.0, 0.005 * u_time)) * vec3(6.0, 1.4, 0.0);
+                float show_fire = smoothstep(0.4, 0.9, fbm(10.0 * uv + 2.0 - vec2(0.0, 0.005 * u_time)));
+                show_fire += smoothstep(0.7, 0.8, fbm(0.5 * uv + 5.0 - vec2(0.0, 0.001 * u_time)));
+                
+                float fire_border = 0.03 * show_fire;
+                float fire_edge = smoothstep(main_noise - fire_border, main_noise - 0.5 * fire_border, t);
+                fire_edge *= (1.0 - smoothstep(main_noise - 0.5 * fire_border, main_noise, t));
+                
+                // Charring effect at edges
+                float char_edge = smoothstep(main_noise - 0.12, main_noise - 0.02, t);
+                vec3 charColor = mix(darkColor, vec3(0.15, 0.05, 0.02), char_edge);
+                
+                // Add fire glow to charred edges
+                vec3 color = charColor + fire_color * fire_edge;
+                
+                // Opacity - burns away (becomes transparent) to reveal image underneath
+                float opacity = 1.0 - smoothstep(main_noise - 0.005, main_noise + 0.005, t);
+                
+                // Keep fire edge visible
+                opacity = max(opacity, fire_edge * 0.9);
+                
+                gl_FragColor = vec4(color, opacity);
+            }
+        </script>
+        <!-- Scroll Container -->
+        <div id="scroll-container">
+            <!-- ===== HERO ===== -->
+            <section class="section section--hero" id="section-hero">
+                <div class="hero-bg-particles" id="hero-particles"></div>
+                <div class="hero-content">
+                    <div class="hero-date">february 2, 2023</div>
+                    <div class="hero-divider"></div>
+                    <h1 class="hero-title">for my baby</h1>
+                    <p class="hero-subtitle">a little corner of the internet, just for you.</p>
+                    <div class="hero-scroll-hint" id="hero-scroll-btn">
+                        <span>Scroll down</span>
+                        <div class="arrow-down">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 5v14M5 12l7 7 7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- ===== SECTION 1: THANK YOU ===== -->
+            <section class="section section--thankyou" id="section-thankyou">
+                <div class="section__content">
+                    <h2 class="thankyou-heading">thank you</h2>
+                    <p class="thankyou-text">
+                        <!-- PLACEHOLDER: Replace with your own words -->
+                        hey baby, andami ko gustong pasalamatan sayo, and i don't think i could ever put them all
+                        into words. but i want to try, because you deserve to know just how much you mean to me.
+                    </p>
+                    <p class="thankyou-text">
+                        <!-- PLACEHOLDER: Replace with your own words -->
+                        thank you for being <span class="thankyou-highlight">my safe place</span>. for always knowing
+                        the right thing to say, even when i don't know what i need to hear (or i don't want to hear it
+                        cuz ik it's true). for your patience, your
+                        kindness, and the way you love me even on the days i make it hard.
+                    </p>
+                    <ul class="thankyou-list">
+                        <!-- PLACEHOLDER: Replace these with your own specific thank-yous -->
+                        <li>for always believing in me, even when i didn't believe in myself</li>
+                        <li>for always forgiving me, even when i was wrong</li>
+                        <li>for always loving me, even when i was annoying</li>
+                        <li>for always choosing me, even when i was difficult</li>
+                        <li>for always being there for me, even when i was distant</li>
+                        <li>for accepting me for who i am</li>
+                        <li>for always supporting me</li>
+                        <li>for always loving me, even when you're mad at me</li>
+                    </ul>
+                    <p class="thankyou-text">
+                        <!-- PLACEHOLDER: Replace with your own words -->
+                        you make my world brighter just by being in it. i hope you never forget how loved you are.
+                    </p>
+                </div>
+            </section>
+            <!-- ===== SECTION 2: MEMORIES (3 Cards) ===== -->
+            <section class="section section--memories" id="section-memories">
+                <h2 class="memories-heading">our memories</h2>
+                <p class="memories-subtext">click ts bruh</p>
+                <div class="memory-cards">
+                    <!-- Memory Card 1 -->
+                    <div class="memory-card" onclick="navigateToMemory('memories/memory1.html')">
+                        <div class="memory-card-placeholder"><img src="/photos/IMG_4046.JPEG"></div>
+                        <!-- Replace placeholder with: <img class="memory-card-image" src="your-image.jpg" alt="Our First Date"> -->
+                        <div class="memory-card-content">
+                            <span class="memory-card-number">01 / First Year</span>
+                            <h3 class="memory-card-title">2023</h3>
+                            <p class="memory-card-hint">click me! →</p>
+                        </div>
+                    </div>
+                    <!-- Memory Card 2 -->
+                    <div class="memory-card" onclick="navigateToMemory('memories/memory2.html')">
+                        <div class="memory-card-placeholder"><img src="/photos/IMG_5473.PNG"></div>
+                        <!-- Replace placeholder with: <img class="memory-card-image" src="your-image.jpg" alt="Adventures Together"> -->
+                        <div class="memory-card-content">
+                            <span class="memory-card-number">02 / Second Year</span>
+                            <h3 class="memory-card-title">2024</h3>
+                            <p class="memory-card-hint">click me! →</p>
+                        </div>
+                    </div>
+                    <!-- Memory Card 3 -->
+                    <div class="memory-card" onclick="navigateToMemory('memories/memory3.html')">
+                        <div class="memory-card-placeholder"><img src="/photos/IMG_7025.png"></div>
+                        <!-- Replace placeholder with: <img class="memory-card-image" src="your-image.jpg" alt="Everyday Moments"> -->
+                        <div class="memory-card-content">
+                            <span class="memory-card-number">03 / Third Year</span>
+                            <h3 class="memory-card-title">2025</h3>
+                            <p class="memory-card-hint">click me! →</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- ===== SECTION 3: LETTER (with keyhole reveal) ===== -->
+            <section class="section section--letter" id="section-letter">
+                <div class="letter-first-view">
+                    <figure>
+                        <img src="photos/IMG_6335.png" alt="you" crossorigin="anonymous"
+                            style="width:100%;height:100%;object-fit:cover;">
+                    </figure>
+                    <div class="letter-overlay-text">
+                        <h2>a letter from my heart</h2>
+                    </div>
+                </div>
+                <div class="letter-body">
+                    <div class="section__content">
+                        <h2 class="letter-heading">my letter to you</h2>
+                        <div class="letter-paper">
+                            <div class="letter-greeting">to my home,</div>
+                            <!-- PLACEHOLDER: Replace all letter paragraphs with your own words -->
+                            <p class="letter-paragraph">
+                                i've been thinking about how to write this, and honestly, no words feel like enough,
+                                especially after what we've been through. but i want you to have something you can
+                                come back to whenever you need to be reminded of how i feel about you. and i wanted
+                                to show my love for you in a way i can best express it, using this website.
+                            </p>
+                            <p class="letter-paragraph">
+                                from the moment you came into my life, everything changed. the world got a little
+                                brighter, the days got a little easier, and i found something i didn't even know i was
+                                looking for. you.
+                            </p>
+                            <p class="letter-paragraph">
+                                i love the way you smile, the way you laugh, the way you make me feel, the way you
+                                always look so cute. i love how you always make me feel so special. so lucky. your
+                                presence in my life is the best thing that has ever happened to me, even if i don't
+                                always show much gratitude to it. i love that even after all this time, my heart still
+                                yearns for you no matter what. you're more than just a girlfriend to me. you're someone
+                                i aspire to be. someone i look up to. and someone i want to be with for the rest of my
+                                life.
+                            </p>
+                            <p class="letter-paragraph">
+                                there are going to be hard days, of course there will be, but there are also going to be
+                                beautiful ones. but i want you to know that through all of them, i choose you. i will
+                                always choose you.
+                            </p>
+                            <p class="letter-paragraph">
+                                thank you for being my best friend, my partner, and my home. i love you more than words
+                                on a screen could ever say -- but i know this is just the start of our chapter.
+                            </p>
+                            <div class="letter-closing">
+                                <div class="closing-text">forever & always yours,</div>
+                                <!-- PLACEHOLDER: Replace with your name -->
+                                <div class="closing-name">juls</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- ===== FOOTER ===== -->
+            <footer class="footer">
+                <div class="footer-heart">&#10084;</div>
+                <p class="footer-text">made with love, just for you.</p>
+            </footer>
+        </div><!-- end scroll-container -->
+    </div><!-- end main-content -->
+    <!-- ============ SCRIPTS ============ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            gsap.registerPlugin(ScrollTrigger);
+            // ========================================
+            // PASSWORD / LOCK SCREEN
+            // ========================================
+            const PASSWORD = '020823';
+            const lockScreen = document.getElementById('lock-screen');
+            const lockInput = document.getElementById('lock-input');
+            const lockError = document.getElementById('lock-error');
+            const mainContent = document.getElementById('main-content');
+
+            // Check if returning from memory page AND already unlocked this session
+            if (sessionStorage.getItem('fromMemory') && sessionStorage.getItem('siteUnlocked')) {
+                // Skip lock screen, go directly to main content
+                lockScreen.style.display = 'none';
+                mainContent.classList.add('visible');
+                mainContent.classList.add('page-enter');
+                document.documentElement.style.overflow = '';
+                // Wait for DOM then initialize
+                setTimeout(() => {
+                    initMainSite();
+                    sessionStorage.removeItem('fromMemory');
+                }, 100);
+            }
+            function initLockScreen() {
+                const heartsContainer = document.getElementById('lock-hearts');
+                for (let i = 0; i < 20; i++) {
+                    const heart = document.createElement('span');
+                    heart.classList.add('lock-heart');
+                    heart.innerHTML = ['&#10084;', '&#10085;', '&#9829;'][Math.floor(Math.random() * 3)];
+                    heart.style.left = Math.random() * 100 + '%';
+                    heart.style.animationDelay = Math.random() * 6 + 's';
+                    heart.style.animationDuration = (4 + Math.random() * 4) + 's';
+                    heart.style.fontSize = (0.8 + Math.random() * 1.5) + 'rem';
+                    heartsContainer.appendChild(heart);
+                }
+                gsap.to('.lock-icon', { opacity: 1, duration: 0.8, delay: 0.3 });
+                gsap.to('.lock-title', { opacity: 1, y: 0, duration: 0.8, delay: 0.5 });
+                gsap.to('.lock-subtitle', { opacity: 1, y: 0, duration: 0.8, delay: 0.7 });
+                gsap.to('.lock-input-wrap', { opacity: 1, y: 0, duration: 0.8, delay: 0.9 });
+                lockInput.focus();
+            }
+            lockInput.addEventListener('input', function () {
+                if (this.value.length === PASSWORD.length) {
+                    if (this.value === PASSWORD) {
+                        unlock();
+                    } else {
+                        this.classList.add('shake');
+                        lockError.classList.add('show');
+                        setTimeout(() => { this.classList.remove('shake'); this.value = ''; }, 500);
+                        setTimeout(() => lockError.classList.remove('show'), 2000);
+                    }
+                }
+            });
+            lockInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && this.value.length > 0) {
+                    if (this.value === PASSWORD) {
+                        unlock();
+                    } else {
+                        this.classList.add('shake');
+                        lockError.classList.add('show');
+                        setTimeout(() => { this.classList.remove('shake'); this.value = ''; }, 500);
+                        setTimeout(() => lockError.classList.remove('show'), 2000);
+                    }
+                }
+            });
+            function unlock() {
+                gsap.to('.lock-icon svg', { stroke: '#a8e6a0', duration: 0.3 });
+                gsap.to('.lock-icon svg path', {
+                    attr: { d: 'M7 11V7a5 5 0 0 1 9.9-1' },
+                    duration: 0.4,
+                    ease: 'power2.out'
+                });
+                setTimeout(() => {
+                    lockScreen.classList.add('unlocked');
+                    mainContent.classList.add('visible');
+                    // Remember unlock status for this session
+                    sessionStorage.setItem('siteUnlocked', 'true');
+                    setTimeout(() => {
+                        lockScreen.style.display = 'none';
+                        document.documentElement.style.overflow = '';
+                        mainContent.classList.add('page-enter');
+                        initMainSite();
+                    }, 800);
+                }, 600);
+            }
+            // ========================================
+            // MAIN SITE INITIALIZATION
+            // ========================================
+            let lenis = null;
+
+            function initMainSite() {
+                gsap.to('#main-content', { opacity: 1, duration: 1 });
+
+                // Initialize Lenis smooth scroll
+                const scrollContainer = document.getElementById('scroll-container');
+                lenis = new Lenis({
+                    wrapper: scrollContainer,
+                    content: scrollContainer,
+                    duration: 1.2,
+                    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                    orientation: 'vertical',
+                    gestureOrientation: 'vertical',
+                    smoothWheel: true,
+                    wheelMultiplier: 1,
+                    touchMultiplier: 2,
+                    infinite: false
+                });
+
+                // Integrate Lenis with GSAP ScrollTrigger
+                lenis.on('scroll', ScrollTrigger.update);
+                gsap.ticker.add((time) => {
+                    lenis.raf(time * 1000);
+                });
+                gsap.ticker.lagSmoothing(0);
+
+                // Update ScrollTrigger to use Lenis
+                ScrollTrigger.scrollerProxy('#scroll-container', {
+                    scrollTop(value) {
+                        if (arguments.length) {
+                            lenis.scrollTo(value, { immediate: true });
+                        }
+                        return lenis.scroll;
+                    },
+                    getBoundingClientRect() {
+                        return {
+                            top: 0,
+                            left: 0,
+                            width: window.innerWidth,
+                            height: window.innerHeight
+                        };
+                    },
+                    pinType: scrollContainer.style.transform ? 'transform' : 'fixed'
+                });
+
+                ScrollTrigger.defaults({ scroller: '#scroll-container' });
+
+                initHero();
+                initThankYou();
+                initMemories();
+                initLetter();
+                initNavDots();
+                initCustomScrollbar();
+
+                // Refresh ScrollTrigger after everything is set up
+                ScrollTrigger.refresh();
+            }
+            // ========================================
+            // HERO SECTION
+            // ========================================
+            function initHero() {
+                // Particles
+                const particlesContainer = document.getElementById('hero-particles');
+                for (let i = 0; i < 50; i++) {
+                    const p = document.createElement('div');
+                    p.classList.add('hero-particle');
+                    p.style.left = Math.random() * 100 + '%';
+                    p.style.top = Math.random() * 100 + '%';
+                    p.style.width = (2 + Math.random() * 4) + 'px';
+                    p.style.height = p.style.width;
+                    // Random depth for parallax (0.3 to 1.5)
+                    p.dataset.depth = (0.3 + Math.random() * 1.2).toFixed(2);
+                    particlesContainer.appendChild(p);
+                    gsap.to(p, {
+                        opacity: Math.random() * 0.5 + 0.1,
+                        duration: 2 + Math.random() * 3,
+                        repeat: -1, yoyo: true,
+                        delay: Math.random() * 3,
+                        ease: 'sine.inOut'
+                    });
+                    gsap.to(p, {
+                        y: 'random(-30, 30)', x: 'random(-20, 20)',
+                        duration: 4 + Math.random() * 4,
+                        repeat: -1, yoyo: true,
+                        ease: 'sine.inOut',
+                        delay: Math.random() * 2
+                    });
+                }
+                // Hero text entrance
+                const heroTl = gsap.timeline({ delay: 0.5 });
+                heroTl
+                    .to('.hero-date', { opacity: 1, duration: 1, ease: 'power2.out' })
+                    .to('.hero-divider', { opacity: 1, duration: 0.8 }, '-=0.5')
+                    .to('.hero-title', { opacity: 1, duration: 1.2, ease: 'power2.out' }, '-=0.4')
+                    .to('.hero-subtitle', { opacity: 1, duration: 1, ease: 'power2.out' }, '-=0.6')
+                    .to('.hero-scroll-hint', { opacity: 1, duration: 0.8, ease: 'power2.out' }, '-=0.3');
+
+                // Parallax on hero content (moves up faster)
+                gsap.to('.hero-content', {
+                    y: -150, opacity: 0, ease: 'none',
+                    scrollTrigger: {
+                        trigger: '#section-hero',
+                        scroller: '#scroll-container',
+                        start: 'top top', end: 'bottom top',
+                        scrub: 0.5
+                    }
+                });
+
+                // Parallax on hero particles (moves slower for depth)
+                gsap.to('#hero-particles', {
+                    y: -80, ease: 'none',
+                    scrollTrigger: {
+                        trigger: '#section-hero',
+                        scroller: '#scroll-container',
+                        start: 'top top', end: 'bottom top',
+                        scrub: 0.8
+                    }
+                });
+
+                // CLICKABLE scroll-down arrow (uses Lenis)
+                document.getElementById('hero-scroll-btn').addEventListener('click', function () {
+                    const target = document.getElementById('section-thankyou');
+                    if (target && lenis) {
+                        lenis.scrollTo(target, { duration: 1.5 });
+                    }
+                });
+            }
+            // ========================================
+            // THANK YOU SECTION
+            // ========================================
+            function initThankYou() {
+                gsap.set('.thankyou-heading', { y: 30 });
+                gsap.set('.thankyou-text', { y: 20 });
+                gsap.set('.thankyou-list li', { x: -20 });
+                const tl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: '#section-thankyou',
+                        scroller: '#scroll-container',
+                        start: 'top 70%',
+                        end: 'top 20%',
+                        toggleActions: 'play none none reverse'
+                    }
+                });
+                tl
+                    .to('.thankyou-heading', { opacity: 1, y: 0, duration: 0.8 })
+                    .to('.thankyou-text', { opacity: 1, y: 0, duration: 0.6, stagger: 0.2 }, '-=0.4')
+                    .to('.thankyou-list li', { opacity: 1, x: 0, duration: 0.5, stagger: 0.15, ease: 'power2.out' }, '-=0.3');
+            }
+            // ========================================
+            // PAGE TRANSITION NAVIGATION
+            // ========================================
+            window.navigateToMemory = function (url) {
+                const overlay = document.getElementById('page-transition');
+                overlay.classList.add('active');
+                setTimeout(() => {
+                    window.location.href = url;
+                }, 600);
+            }
+
+            // Handle smooth page transition overlay when returning from memory
+            window.addEventListener('load', () => {
+                const overlay = document.getElementById('page-transition');
+                if (sessionStorage.getItem('fromMemory') && sessionStorage.getItem('siteUnlocked')) {
+                    // Start with overlay visible, then fade out
+                    overlay.classList.add('active');
+                    overlay.style.transition = 'none';
+                    setTimeout(() => {
+                        overlay.style.transition = 'opacity 0.6s ease';
+                        overlay.classList.remove('active');
+                    }, 150);
+                }
+            });
+            // ========================================
+            // MEMORIES SECTION (heading + cards animation)
+            // ========================================
+            function initMemories() {
+                gsap.set('.memories-heading', { y: 30 });
+                gsap.set('.memories-subtext', { y: 20 });
+                gsap.set('.memory-card', { y: 40, opacity: 0 });
+
+                const memTl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: '#section-memories',
+                        scroller: '#scroll-container',
+                        start: 'top 70%',
+                        toggleActions: 'play none none reverse'
+                    }
+                });
+                memTl
+                    .to('.memories-heading', { opacity: 1, y: 0, duration: 0.8 })
+                    .to('.memories-subtext', { opacity: 1, y: 0, duration: 0.6 }, '-=0.4')
+                    .to('.memory-card', {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.8,
+                        stagger: 0.15,
+                        ease: 'power2.out'
+                    }, '-=0.3');
+
+                // Parallax depth on memory cards (different speeds)
+                document.querySelectorAll('.memory-card').forEach((card, i) => {
+                    const speed = 20 + (i * 15); // Different parallax speed per card
+                    gsap.to(card, {
+                        y: -speed,
+                        ease: 'none',
+                        scrollTrigger: {
+                            trigger: '#section-memories',
+                            scroller: '#scroll-container',
+                            start: 'top bottom',
+                            end: 'bottom top',
+                            scrub: 0.5
+                        }
+                    });
+                });
+            }
+            // ========================================
+            // LETTER SECTION (Burn Transition - WebGL)
+            // ========================================
+            let burnGL = null;
+            let burnUniforms = null;
+            let burnAnimationId = null;
+            const burnParams = {
+                fireTime: 0.35,
+                isActive: false
+            };
+
+            function initBurnShader() {
+                const canvasEl = document.getElementById('fire-overlay');
+                const vsSource = document.getElementById('vertShader').innerHTML;
+                const fsSource = document.getElementById('fragShader').innerHTML;
+
+                const gl = canvasEl.getContext('webgl') || canvasEl.getContext('experimental-webgl');
+                if (!gl) {
+                    console.warn('WebGL not supported, burn transition disabled');
+                    return null;
+                }
+
+                function createShader(gl, sourceCode, type) {
+                    const shader = gl.createShader(type);
+                    gl.shaderSource(shader, sourceCode);
+                    gl.compileShader(shader);
+                    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                        console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+                        gl.deleteShader(shader);
+                        return null;
+                    }
+                    return shader;
+                }
+
+                const vertexShader = createShader(gl, vsSource, gl.VERTEX_SHADER);
+                const fragmentShader = createShader(gl, fsSource, gl.FRAGMENT_SHADER);
+
+                const program = gl.createProgram();
+                gl.attachShader(program, vertexShader);
+                gl.attachShader(program, fragmentShader);
+                gl.linkProgram(program);
+
+                if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                    console.error('Shader program link error:', gl.getProgramInfoLog(program));
+                    return null;
+                }
+
+                burnUniforms = {};
+                const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+                for (let i = 0; i < uniformCount; i++) {
+                    const uniformName = gl.getActiveUniform(program, i).name;
+                    burnUniforms[uniformName] = gl.getUniformLocation(program, uniformName);
+                }
+
+                const vertices = new Float32Array([-1., -1., 1., -1., -1., 1., 1., 1.]);
+                const vertexBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+                gl.useProgram(program);
+
+                const positionLocation = gl.getAttribLocation(program, 'a_position');
+                gl.enableVertexAttribArray(positionLocation);
+                gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+                gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+                gl.enable(gl.BLEND);
+                gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+                return gl;
+            }
+
+            function resizeBurnCanvas() {
+                if (!burnGL) return;
+                const canvasEl = document.getElementById('fire-overlay');
+                const dpr = Math.min(window.devicePixelRatio, 2);
+                canvasEl.width = window.innerWidth * dpr;
+                canvasEl.height = window.innerHeight * dpr;
+                burnGL.viewport(0, 0, canvasEl.width, canvasEl.height);
+                burnGL.uniform2f(burnUniforms.u_resolution, canvasEl.width, canvasEl.height);
+            }
+
+            function renderBurn() {
+                if (!burnGL || !burnParams.isActive) return;
+                const currentTime = performance.now();
+                burnGL.uniform1f(burnUniforms.u_time, currentTime);
+                burnGL.uniform1f(burnUniforms.u_progress, burnParams.fireTime);
+                burnGL.drawArrays(burnGL.TRIANGLE_STRIP, 0, 4);
+                burnAnimationId = requestAnimationFrame(renderBurn);
+            }
+
+            function startBurnAnimation() {
+                console.log('startBurnAnimation called, isActive:', burnParams.isActive);
+                if (burnParams.isActive) return;
+                burnParams.isActive = true;
+                const canvasEl = document.getElementById('fire-overlay');
+                console.log('Canvas element:', canvasEl, 'Adding active class');
+                canvasEl.classList.add('active');
+                resizeBurnCanvas();
+                renderBurn();
+            }
+
+            function stopBurnAnimation() {
+                burnParams.isActive = false;
+                const canvasEl = document.getElementById('fire-overlay');
+                canvasEl.classList.remove('active');
+                if (burnAnimationId) {
+                    cancelAnimationFrame(burnAnimationId);
+                    burnAnimationId = null;
+                }
+            }
+
+            function initLetter() {
+                const letterArrow = document.getElementById('letter-arrow');
+
+                // Initialize WebGL shader
+                burnGL = initBurnShader();
+                if (burnGL) {
+                    window.addEventListener('resize', resizeBurnCanvas);
+                    resizeBurnCanvas();
+                }
+
+                // Fade in the letter section image
+                gsap.to('.letter-first-view figure img', {
+                    opacity: 1,
+                    duration: 1.5,
+                    ease: 'power2.out',
+                    scrollTrigger: {
+                        trigger: '.letter-first-view',
+                        scroller: '#scroll-container',
+                        start: 'top 80%',
+                        toggleActions: 'play none none reverse'
+                    }
+                });
+
+                // Parallax on letter image (slower movement for depth)
+                gsap.to('.letter-first-view figure img', {
+                    y: -100,
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: '.letter-first-view',
+                        scroller: '#scroll-container',
+                        start: 'top bottom',
+                        end: 'bottom top',
+                        scrub: 0.8
+                    }
+                });
+
+                // Show "a letter from my heart" text animation
+                gsap.to('.letter-overlay-text h2', {
+                    opacity: 1,
+                    duration: 1,
+                    delay: 0.3,
+                    scrollTrigger: {
+                        trigger: '.letter-first-view',
+                        scroller: '#scroll-container',
+                        start: 'top 50%',
+                        toggleActions: 'play none none reverse'
+                    }
+                });
+
+                // Parallax on letter text (moves up slightly)
+                gsap.to('.letter-overlay-text', {
+                    y: -50,
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: '.letter-first-view',
+                        scroller: '#scroll-container',
+                        start: 'top bottom',
+                        end: 'bottom top',
+                        scrub: 0.5
+                    }
+                });
+
+                // Fade in the scroll arrow
+                gsap.to(letterArrow, {
+                    opacity: 1,
+                    ease: 'power2.inOut',
+                    scrollTrigger: {
+                        trigger: '#section-letter',
+                        scroller: '#scroll-container',
+                        start: 'top 60%',
+                        end: 'top 30%',
+                        scrub: 1,
+                        onLeaveBack: () => {
+                            gsap.to(letterArrow, { opacity: 0, duration: 0.3 });
+                        }
+                    }
+                });
+
+                // Activate burn transition when "A Letter From My Heart" is centered
+                if (burnGL) {
+                    burnParams.fireTime = 0.35;
+
+                    ScrollTrigger.create({
+                        trigger: '.letter-first-view',
+                        scroller: '#scroll-container',
+                        start: 'center center',
+                        end: 'bottom center',
+                        onEnter: () => {
+                            startBurnAnimation();
+                        },
+                        onLeaveBack: () => {
+                            stopBurnAnimation();
+                            burnParams.fireTime = 0.35;
+                        }
+                    });
+
+                    // Animate burn progress based on scroll
+                    gsap.to(burnParams, {
+                        fireTime: 0.75,
+                        ease: 'none',
+                        scrollTrigger: {
+                            trigger: '.letter-first-view',
+                            scroller: '#scroll-container',
+                            start: 'center center',
+                            end: 'bottom top',
+                            scrub: 1.5,
+                            onLeaveBack: () => {
+                                burnParams.fireTime = 0.35;
+                            }
+                        }
+                    });
+                }
+
+                // Fade arrow out once burn starts
+                gsap.to(letterArrow, {
+                    opacity: 0,
+                    scrollTrigger: {
+                        trigger: '.letter-first-view',
+                        scroller: '#scroll-container',
+                        start: 'center center',
+                        end: '+=200',
+                        scrub: 1
+                    }
+                });
+
+                // Letter body content
+                gsap.set('.letter-heading', { y: 30 });
+                const letterTl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: '.letter-body',
+                        scroller: '#scroll-container',
+                        start: 'top 60%',
+                        toggleActions: 'play none none reverse'
+                    }
+                });
+                letterTl
+                    .to('.letter-heading', { opacity: 1, y: 0, duration: 0.8 })
+                    .to('.letter-paper', { opacity: 1, duration: 1, ease: 'power2.out' }, '-=0.4');
+            }
+            // ========================================
+            // NAVIGATION DOTS
+            // ========================================
+            function initNavDots() {
+                const dots = document.querySelectorAll('.nav-dot');
+                const sections = ['#section-hero', '#section-thankyou', '#section-memories', '#section-letter'];
+                dots.forEach(dot => {
+                    dot.addEventListener('click', () => {
+                        const idx = parseInt(dot.dataset.section);
+                        const target = document.querySelector(sections[idx]);
+                        if (target && lenis) {
+                            lenis.scrollTo(target, { duration: 1.5 });
+                        }
+                    });
+                });
+                sections.forEach((sel, i) => {
+                    ScrollTrigger.create({
+                        trigger: sel,
+                        scroller: '#scroll-container',
+                        start: 'top center',
+                        end: 'bottom center',
+                        onEnter: () => setActiveDot(i),
+                        onEnterBack: () => setActiveDot(i)
+                    });
+                });
+                function setActiveDot(idx) {
+                    dots.forEach(d => d.classList.remove('active'));
+                    if (dots[idx]) dots[idx].classList.add('active');
+                }
+            }
+            // ========================================
+            // CUSTOM ROUNDED SCROLLBAR (Full SVG path)
+            // ========================================
+            function initCustomScrollbar() {
+                const scrollContainer = document.getElementById('scroll-container');
+                const scrollbarEl = document.getElementById('custom-scrollbar');
+                const bar = scrollbarEl.querySelector('.scroller__bar');
+                const track = scrollbarEl.querySelector('.bar__track');
+                const thumb = scrollbarEl.querySelector('.bar__thumb');
+                const SB = {
+                    radius: 24,
+                    scrollPadding: 80,
+                    stroke: 6,
+                    inset: 6,
+                    trail: 0,
+                    thumb: 80,
+                    finish: 5,
+                };
+                let scrollTimeout;
+                function syncBar() {
+                    const height = window.innerHeight;
+                    const mid = SB.radius;
+                    const innerRad = Math.max(0, SB.radius - (SB.inset + SB.stroke * 0.5));
+                    const padTop = SB.inset + SB.stroke * 0.5;
+                    const padRight = SB.radius * 2 - padTop;
+                    bar.setAttribute('viewBox', `0 0 ${SB.radius * 2} ${height}`);
+                    // Build the rounded track path
+                    const d = `
+          M${mid - SB.trail},${padTop}
+          ${innerRad === 0 ? '' : `L${mid},${padTop}`}
+          ${innerRad === 0 ? `L${padRight},${padTop}` : `a${innerRad},${innerRad} 0 0 1 ${innerRad} ${innerRad}`}
+          L${padRight},${height - (SB.inset + SB.stroke * 0.5 + innerRad)}
+          ${innerRad === 0 ? `L${padRight},${height - (SB.inset + SB.stroke * 0.5)}` : `a${innerRad},${innerRad} 0 0 1 ${-innerRad} ${innerRad}`}
+          L${mid - SB.trail},${height - (SB.inset + SB.stroke * 0.5)}
+        `;
+                    thumb.setAttribute('d', d);
+                    track.setAttribute('d', d);
+                    const trackLength = Math.ceil(track.getTotalLength());
+                    // Calculate corner path length
+                    const cornerD = `
+          M${mid - SB.trail},${padTop}
+          ${innerRad === 0 ? '' : `L${mid},${padTop}`}
+          ${innerRad === 0 ? `L${padRight},${padTop}` : `a${innerRad},${innerRad} 0 0 1 ${innerRad} ${innerRad}`}
+        `;
+                    const tempPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    tempPath.setAttribute('d', cornerD);
+                    bar.appendChild(tempPath);
+                    const cornerLength = Math.ceil(tempPath.getTotalLength());
+                    bar.removeChild(tempPath);
+                    scrollbarEl.style.setProperty('--track-length', trackLength);
+                    scrollbarEl.style.setProperty('--thumb-size', SB.thumb);
+                    scrollbarEl.style.setProperty('--sb-stroke', SB.stroke);
+                    // Kill existing scroll-driven tweens on thumb
+                    gsap.killTweensOf(thumb);
+                    const scrollHeight = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+                    if (scrollHeight <= 0) return;
+                    const padRatio = Math.min(SB.scrollPadding / scrollHeight, 0.4);
+                    const frameOne = Math.floor(padRatio * 100) + '%';
+                    const frameTwo = (100 - Math.floor(padRatio * 100)) + '%';
+                    gsap.to(thumb, {
+                        ease: 'none',
+                        scrollTrigger: {
+                            scroller: '#scroll-container',
+                            scrub: true,
+                        },
+                        keyframes: {
+                            '0%': { strokeDashoffset: SB.thumb - SB.finish },
+                            [frameOne]: { strokeDashoffset: cornerLength * -1 },
+                            [frameTwo]: { strokeDashoffset: (trackLength - cornerLength - SB.thumb) * -1 },
+                            '100%': { strokeDashoffset: (trackLength - SB.finish) * -1 },
+                        }
+                    });
+                }
+                // Show/hide scrollbar on scroll (uses Lenis)
+                if (lenis) {
+                    lenis.on('scroll', () => {
+                        thumb.classList.add('visible');
+                        track.classList.add('visible');
+                        clearTimeout(scrollTimeout);
+                        scrollTimeout = setTimeout(() => {
+                            thumb.classList.remove('visible');
+                            track.classList.remove('visible');
+                        }, 1500);
+                    });
+                } else {
+                    scrollContainer.addEventListener('scroll', () => {
+                        thumb.classList.add('visible');
+                        track.classList.add('visible');
+                        clearTimeout(scrollTimeout);
+                        scrollTimeout = setTimeout(() => {
+                            thumb.classList.remove('visible');
+                            track.classList.remove('visible');
+                        }, 1500);
+                    });
+                }
+                syncBar();
+                window.addEventListener('resize', () => {
+                    ScrollTrigger.refresh();
+                    syncBar();
+                });
+            }
+            // ========================================
+            // INIT
+            // ========================================
+            initLockScreen();
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2023 - Memory Gallery</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Great+Vibes&display=swap');
+
+        :root {
+            --bg-dark: #120808;
+            --bg-warm: #1a0d0d;
+            --rose: #e8a0a0;
+            --rose-light: #f0c0c0;
+            --cream: #f5e6d3;
+            --cream-dark: #d4a574;
+            --text-muted: #8a7a7a;
+            --font-script: 'Great Vibes', cursive;
+            --font-serif: 'Cormorant Garamond', serif;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-dark);
+            font-family: var(--font-serif);
+            color: var(--cream);
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        #ui-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 50px;
+            z-index: 10;
+        }
+
+        .logo {
+            font-family: var(--font-script);
+            font-size: 1.8rem;
+            color: var(--rose-light);
+            letter-spacing: 1px;
+        }
+
+        .back-btn {
+            font-family: var(--font-serif);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 1px solid rgba(232, 160, 160, 0.2);
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+        }
+
+        .back-btn:hover {
+            color: var(--rose);
+            border-color: var(--rose);
+            background: rgba(232, 160, 160, 0.05);
+        }
+
+        .slide-content {
+            position: absolute;
+            top: 25%;
+            left: 8%;
+            width: 30%;
+            max-width: 450px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease-out;
+            pointer-events: auto;
+        }
+
+        .slide-content.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h1 {
+            font-family: var(--font-script);
+            font-weight: 400;
+            font-size: 3.5rem;
+            margin: 0 0 1.5rem 0;
+            line-height: 1;
+            color: var(--rose-light);
+        }
+
+        .catalogue-number {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            border-bottom: 1px solid rgba(232, 160, 160, 0.2);
+            padding-bottom: 5px;
+        }
+
+        .description {
+            font-size: 1.05rem;
+            font-weight: 300;
+            line-height: 1.8;
+            color: var(--cream-dark);
+            margin-bottom: 2rem;
+            text-align: left;
+            font-style: italic;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            row-gap: 0.8rem;
+            border-top: 1px solid rgba(232, 160, 160, 0.15);
+            padding-top: 1.5rem;
+        }
+
+        .meta-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            align-self: center;
+        }
+
+        .meta-value {
+            font-family: var(--font-script);
+            font-size: 1.3rem;
+            color: var(--rose);
+        }
+
+        .scroll-hint {
+            position: fixed;
+            bottom: 40px;
+            left: 50px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+        }
+
+        /* Page Transition */
+        .page-transition {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-dark);
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease;
+        }
+
+        .page-transition.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* ===== MOBILE RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+                gap: 10px;
+            }
+
+            .logo {
+                font-size: 1.3rem;
+            }
+
+            .back-btn {
+                font-size: 0.7rem;
+                padding: 8px 14px;
+                letter-spacing: 1px;
+            }
+
+            .slide-content {
+                top: auto;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                max-width: 100%;
+                padding: 20px 25px 30px;
+                box-sizing: border-box;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+                margin: 0 0 0.8rem 0;
+            }
+
+            .catalogue-number {
+                font-size: 0.6rem;
+                margin-bottom: 0.8rem;
+                letter-spacing: 2px;
+            }
+
+            .description {
+                font-size: 0.9rem;
+                line-height: 1.6;
+                margin-bottom: 1.2rem;
+            }
+
+            .meta-grid {
+                grid-template-columns: 60px 1fr;
+                row-gap: 0.5rem;
+                padding-top: 1rem;
+            }
+
+            .meta-label {
+                font-size: 0.6rem;
+            }
+
+            .meta-value {
+                font-size: 1rem;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+            }
+
+            .scroll-hint {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-transition" id="page-transition"></div>
+
+    <div class="header">
+        <div class="logo">2023</div>
+        <a href="#" class="back-btn" onclick="goBack(event)">← Back to Site</a>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div id="ui-layer">
+        <!-- Slides will be generated dynamically -->
+    </div>
+
+    <div class="scroll-hint">Scroll to explore</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // ==========================================
+        //  MEMORY DATA - EDIT THIS SECTION
+        // ==========================================
+        // Add as many slides as you want here.
+        const MEMORY_DATA = [
+            {
+                image: '../photos/2023/received_1174405123500735.jpg',
+                number: '01 / First Date',
+                title: 'The Beginning',
+                description: 'even though this was before we were a couple, i already knew you were special to me. from the moment we got closer, i saw something in you that i never saw in anyone else.',
+                meta: { 'Date': '2022-12-10' }
+            },
+            {
+                image: '../photos/2023/IMG_4640.PNG',
+                number: '02 / First Date',
+                title: 'First Hug',
+                description: 'i still remember how nervous i was when i first hugged you. my heart was beating so damn fast. it was a moment i had been looking forward to for so long, and it was even better than i imagined. i\'ll never forget my first hug with you.',
+                meta: { 'Date': '2022-12-22' }
+            },
+            {
+                image: '../photos/2023/photo 2-4-23, 7 54 24 am (3) (1).JPG',
+                number: '03 / Favorite',
+                title: 'Favorite 2023 Photo',
+                description: 'this is lit my favorite photo of us from 2023. antagal ko naging wallpaper \'to at the time.',
+                meta: { 'Date': '2023-02-04' }
+            },
+            {
+                image: '../photos/2023/IMG_5763 (1) (1).png',
+                number: '04 / Marriage',
+                title: 'Just Got Married!',
+                description: 'uyyy school fair! one of my fave and worst memories of our lives ghashashas, so many bad decisions my god.',
+                meta: { 'Date': '2023-02-10' }
+            },
+            {
+                image: '../photos/2023/IMG_1648.png',
+                number: '05 / BP',
+                title: 'Batch Party',
+                description: 'wtf i look like a creep here gasshashsahss you look so cute here tho',
+                meta: { 'Date': '2023-02-11 basta ion remember the date' }
+            },
+            {
+                image: '../photos/2023/IMG_2110.png',
+                number: '06 / Kiss',
+                title: 'Love',
+                description: 'after all of the things we\'ve been through that year, we still ended up together. i couldn\'t ask for anything more. i love you more than anything in the world',
+                meta: { 'Date': '2023-12-19' }
+            }
+        ];
+
+        // ==========================================
+        //  DYNAMIC SLIDE GENERATION
+        // ==========================================
+        function generateSlides() {
+            const container = document.getElementById('ui-layer');
+            container.innerHTML = ''; // sensitive, clear placeholder
+
+            MEMORY_DATA.forEach((data, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'slide-content';
+                slide.id = `slide-${index}`;
+
+                let metaHTML = '';
+                if (data.meta) {
+                    metaHTML = '<div class="meta-grid">';
+                    for (const [label, value] of Object.entries(data.meta)) {
+                        metaHTML += `<span class="meta-label">${label}</span> <span class="meta-value">${value}</span>`;
+                    }
+                    metaHTML += '</div>';
+                }
+
+                slide.innerHTML = `
+                    <span class="catalogue-number">${data.number}</span>
+                    <h1>${data.title}</h1>
+                    <div class="description">${data.description}</div>
+                    ${metaHTML}
+                `;
+                container.appendChild(slide);
+            });
+        }
+
+        // Initialize Slides
+        generateSlides();
+
+        // ==========================================
+        //  3D SCENE SETUP
+        // ==========================================
+
+        // Navigation with smooth transition
+        function goBack(e) {
+            e.preventDefault();
+            sessionStorage.setItem('fromMemory', 'true');
+            const overlay = document.getElementById('page-transition');
+            overlay.classList.add('active');
+            setTimeout(() => {
+                window.location.href = '../index.html#section-memories';
+            }, 600);
+        }
+
+        // Fade in on load
+        window.addEventListener('load', () => {
+            const overlay = document.getElementById('page-transition');
+            overlay.classList.add('active');
+            overlay.style.transition = 'none';
+            setTimeout(() => {
+                overlay.style.transition = 'opacity 0.6s ease';
+                overlay.classList.remove('active');
+            }, 50);
+        });
+
+        // Painting dimensions: fixed world-space size
+        const PAINTING_MAX_H = 18;
+        const PAINTING_MAX_W = 22;
+        const FRAME_THICKNESS = 0.5;
+
+        // Compute camera Z so the painting (with frame) fits the viewport with padding
+        function computeCamZ() {
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const aspect = vw / vh;
+            const fovRad = THREE.MathUtils.degToRad(45 / 2);
+
+            // The largest painting footprint (frame included)
+            const frameW = PAINTING_MAX_W + FRAME_THICKNESS;
+            const frameH = PAINTING_MAX_H + FRAME_THICKNESS;
+
+            // Distance needed to fit height
+            const zForH = (frameH / 2) / Math.tan(fovRad);
+            // Distance needed to fit width
+            const zForW = (frameW / 2) / (Math.tan(fovRad) * aspect);
+
+            // Use whichever is larger, plus some padding (1.15x)
+            return Math.max(zForH, zForW) * 1.15;
+        }
+
+        function getResponsiveConfig() {
+            const mobile = window.innerWidth <= 768;
+            return {
+                camZ: computeCamZ(),
+                wallAngleY: mobile ? 0 : -0.25,
+                camY: mobile ? 2 : 0,
+                spacingX: mobile ? 35 : 45
+            };
+        }
+
+        const CONFIG = {
+            slideCount: MEMORY_DATA.length, // Dynamic count
+            spacingX: getResponsiveConfig().spacingX,
+            camZ: getResponsiveConfig().camZ,
+            wallAngleY: getResponsiveConfig().wallAngleY,
+            snapDelay: 200,
+            lerpSpeed: 0.06,
+            maxHeight: PAINTING_MAX_H,
+            maxWidth: PAINTING_MAX_W
+        };
+
+        let totalGalleryWidth = CONFIG.slideCount * CONFIG.spacingX;
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x120808);
+        scene.fog = new THREE.Fog(0x120808, 10, 110);
+
+        // Keep fog from dimming the painting unless screen is very small (<390x844)
+        function updateFog() {
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            if (vw < 390 && vh < 844) {
+                // Small screen: allow default fog
+                scene.fog.near = 10;
+                scene.fog.far = 110;
+            } else {
+                // Push fog far enough so the painting at camZ is never dimmed
+                scene.fog.near = CONFIG.camZ * 0.8;
+                scene.fog.far = CONFIG.camZ * 3;
+            }
+        }
+        updateFog();
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, getResponsiveConfig().camY, CONFIG.camZ);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambient);
+
+        const dirLight = new THREE.DirectionalLight(0xf5e6d3, 0.3);
+        dirLight.position.set(10, 20, 10);
+        scene.add(dirLight);
+
+        const galleryGroup = new THREE.Group();
+        galleryGroup.rotation.y = CONFIG.wallAngleY;
+        galleryGroup.position.x = 0;
+        scene.add(galleryGroup);
+
+        const textureLoader = new THREE.TextureLoader();
+
+        const paintingGroups = [];
+
+        // Generate 3D meshes based on MEMORY_DATA
+        for (let i = 0; i < CONFIG.slideCount; i++) {
+            const group = new THREE.Group();
+            group.position.set(i * CONFIG.spacingX, 0, 0);
+            galleryGroup.add(group);
+            paintingGroups.push(group);
+
+            // Load texture and create geometry dynamically based on image aspect ratio
+            textureLoader.load(MEMORY_DATA[i].image, (tex) => {
+                const img = tex.image;
+                const aspect = img.width / img.height;
+
+                let h = CONFIG.maxHeight;
+                let w = h * aspect;
+
+                // "Zoom out" logic: if image is too wide, scale it down to fit constraints
+                if (w > CONFIG.maxWidth) {
+                    const scale = CONFIG.maxWidth / w;
+                    w = CONFIG.maxWidth;
+                    h = h * scale;
+                }
+
+                // Create Geometries with dynamic dimensions
+                const geometry = new THREE.PlaneGeometry(w, h);
+                const material = new THREE.MeshBasicMaterial({ map: tex });
+                const mesh = new THREE.Mesh(geometry, material);
+
+                const frameGeo = new THREE.BoxGeometry(w + FRAME_THICKNESS, h + FRAME_THICKNESS, 0.3);
+                const frameMat = new THREE.MeshBasicMaterial({ color: 0x2a1215 });
+                const frame = new THREE.Mesh(frameGeo, frameMat);
+                frame.position.z = -0.2;
+
+                const shadowGeo = new THREE.PlaneGeometry(w, h);
+                const shadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.2 });
+                const shadow = new THREE.Mesh(shadowGeo, shadowMat);
+                shadow.position.set(0.8, -0.8, -0.5);
+
+                group.add(shadow);
+                group.add(frame);
+                group.add(mesh);
+            });
+        }
+
+        let currentScroll = 0;
+        let targetScroll = 0;
+        let snapTimer = null;
+        let mouse = { x: 0, y: 0 };
+
+        function snapToNearest() {
+            const index = Math.round(targetScroll / CONFIG.spacingX);
+            targetScroll = index * CONFIG.spacingX;
+        }
+
+        window.addEventListener('wheel', (e) => {
+            targetScroll += e.deltaY * 0.1;
+            if (snapTimer) clearTimeout(snapTimer);
+            snapTimer = setTimeout(snapToNearest, CONFIG.snapDelay);
+        });
+
+        let touchStart = 0;
+        window.addEventListener('touchstart', e => {
+            touchStart = e.touches[0].clientX;
+            if (snapTimer) clearTimeout(snapTimer);
+        });
+
+        window.addEventListener('touchmove', e => {
+            const diff = touchStart - e.touches[0].clientX;
+            targetScroll += diff * 0.6;
+            touchStart = e.touches[0].clientX;
+            if (snapTimer) clearTimeout(snapTimer);
+        });
+
+        window.addEventListener('touchend', () => {
+            snapToNearest();
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        function updateUI(scrollX) {
+            const rawIndex = Math.round(scrollX / CONFIG.spacingX);
+            const safeIndex = ((rawIndex % CONFIG.slideCount) + CONFIG.slideCount) % CONFIG.slideCount;
+            for (let i = 0; i < CONFIG.slideCount; i++) {
+                const el = document.getElementById(`slide-${i}`);
+                if (el) {
+                    if (i === safeIndex) el.classList.add('active');
+                    else el.classList.remove('active');
+                }
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            currentScroll += (targetScroll - currentScroll) * CONFIG.lerpSpeed;
+            const xMove = currentScroll * Math.cos(CONFIG.wallAngleY);
+            const zMove = currentScroll * Math.sin(CONFIG.wallAngleY);
+            const rc = getResponsiveConfig();
+            camera.position.x = xMove;
+            camera.position.y = rc.camY;
+            camera.position.z = CONFIG.camZ - zMove;
+            paintingGroups.forEach((group, i) => {
+                const originalX = i * CONFIG.spacingX;
+                const distFromCam = currentScroll - originalX;
+                const shift = Math.round(distFromCam / totalGalleryWidth) * totalGalleryWidth;
+                group.position.x = originalX + shift;
+            });
+            camera.rotation.x = mouse.y * 0.03;
+            camera.rotation.y = -mouse.x * 0.03;
+            updateUI(currentScroll);
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            const rc = getResponsiveConfig();
+            CONFIG.camZ = rc.camZ;
+            CONFIG.wallAngleY = rc.wallAngleY;
+            CONFIG.spacingX = rc.spacingX;
+            totalGalleryWidth = CONFIG.slideCount * CONFIG.spacingX;
+
+            // Update fog based on new screen size
+            updateFog();
+
+            // Update gallery wall angle
+            galleryGroup.rotation.y = CONFIG.wallAngleY;
+
+            // Reposition painting groups with new spacing
+            paintingGroups.forEach((group, i) => {
+                group.position.set(i * CONFIG.spacingX, 0, 0);
+            });
+
+            // Snap scroll to nearest with new spacing
+            const currentIndex = Math.round(targetScroll / CONFIG.spacingX);
+            targetScroll = currentIndex * CONFIG.spacingX;
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+</body>
+
+</html>
